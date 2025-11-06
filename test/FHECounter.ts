@@ -18,6 +18,11 @@ async function deployFixture() {
   return { fheCounterContract, fheCounterContractAddress };
 }
 
+// Helper function for test data generation
+function generateTestInput(value: number): FhevmType {
+  return fhevm.encrypt32(value);
+}
+
 describe("FHECounter", function () {
   let signers: Signers;
   let fheCounterContract: FHECounter;
