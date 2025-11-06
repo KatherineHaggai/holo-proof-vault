@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 220 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+
+    --primary: 200 85% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 200 25% 95%;
+    --secondary-foreground: 200 85% 45%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 220 15% 50%;
+
+    --accent: 200 85% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 200 85% 45%;
+    
+    --holographic: linear-gradient(135deg, 
+      hsl(200 85% 65%), 
+      hsl(280 85% 65%), 
+      hsl(180 85% 65%), 
+      hsl(240 85% 65%));
+    
+    --holographic-glow: 0 0 30px hsl(200 85% 65% / 0.3);
+    
+    --shimmer: shimmer 3s ease-in-out infinite;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 220 20% 8%;
+    --foreground: 210 20% 95%;
+
+    --card: 220 15% 12%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 220 15% 12%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 200 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 200 85% 55%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 15% 60%;
+
+    --accent: 200 85% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 200 85% 55%;
+    
+    --holographic: linear-gradient(135deg, 
+      hsl(200 85% 60%), 
+      hsl(280 85% 60%), 
+      hsl(180 85% 60%), 
+      hsl(240 85% 60%));
+    
+    --holographic-glow: 0 0 30px hsl(200 85% 60% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.holographic-seal {
+  background: linear-gradient(135deg, 
+    hsl(200 85% 65%), 
+    hsl(280 85% 65%), 
+    hsl(180 85% 65%), 
+    hsl(240 85% 65%),
+    hsl(200 85% 65%)
+  );
+  background-size: 300% 300%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.zama-bg {
+  background-color: #ffd200;
+}
