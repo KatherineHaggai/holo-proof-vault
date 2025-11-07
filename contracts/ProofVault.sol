@@ -180,8 +180,8 @@ contract ProofVault is SepoliaConfig {
         Product storage product = _products[productId];
         
         // Grant caller permission to decrypt the encrypted data
-        // FHE.allow(product.priceWei, msg.sender);
-        // FHE.allow(product.certificateHash, msg.sender);
+        FHE.allow(product.priceWei, msg.sender);
+        FHE.allow(product.certificateHash, msg.sender);
 
         emit ProductVerified(productId, msg.sender, block.timestamp);
     }
