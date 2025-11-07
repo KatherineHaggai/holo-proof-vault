@@ -112,6 +112,14 @@ export function useProofVault() {
     );
   };
 
+  // Enhanced validation for input parameters
+  const validateProductParams = (params: AddProductParams): boolean => {
+    return params.name.length > 0 && 
+           params.imageUrl.length > 0 && 
+           params.signature.startsWith('0x') &&
+           params.inputProof.startsWith('0x');
+  };
+
   // Generate message hash for verify signature
   const getVerifyMessageHash = (productId: bigint, nonce: bigint) => {
     if (!contractAddress || !chainId) return null;
