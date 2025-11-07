@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {FHE, euint32, externalEuint32} from "@fhevm/solidity/lib/FHE.sol";
+import {FHE, euint64, externalEuint64} from "@fhevm/solidity/lib/FHE.sol";
 import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
 /// @title A simple FHE counter contract
@@ -17,28 +17,28 @@ contract FHECounter is SepoliaConfig {
     }
 
     /// @notice Increments the counter by a specified encrypted value.
-    /// @param inputEuint32 the encrypted input value
+    /// @param inputEuint64 the encrypted input value
     /// @param inputProof the input proof
     /// @dev This example omits overflow/underflow checks for simplicity and readability.
     /// In a production contract, proper range checks should be implemented.
-    function increment(externalEuint32 inputEuint32, bytes calldata inputProof) external {
-        euint32 encryptedEuint32 = FHE.fromExternal(inputEuint32, inputProof);
+    function increment(externalEuint64 inputEuint64, bytes calldata inputProof) external {
+        euint64 encryptedEuint64 = FHE.fromExternal(inputEuint64, inputProof);
 
-        _count = FHE.add(_count, encryptedEuint32);
+        _count = FHE.add(_count, encryptedEuint64);
 
         FHE.allowThis(_count);
         FHE.allow(_count, msg.sender);
     }
 
     /// @notice Decrements the counter by a specified encrypted value.
-    /// @param inputEuint32 the encrypted input value
+    /// @param inputEuint64 the encrypted input value
     /// @param inputProof the input proof
     /// @dev This example omits overflow/underflow checks for simplicity and readability.
     /// In a production contract, proper range checks should be implemented.
-    function decrement(externalEuint32 inputEuint32, bytes calldata inputProof) external {
-        euint32 encryptedEuint32 = FHE.fromExternal(inputEuint32, inputProof);
+    function decrement(externalEuint64 inputEuint64, bytes calldata inputProof) external {
+        euint64 encryptedEuint64 = FHE.fromExternal(inputEuint64, inputProof);
 
-        _count = FHE.sub(_count, encryptedEuint32);
+        _count = FHE.sub(_count, encryptedEuint64);
 
         FHE.allowThis(_count);
         FHE.allow(_count, msg.sender);
