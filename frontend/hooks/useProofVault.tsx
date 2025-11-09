@@ -120,6 +120,23 @@ export function useProofVault() {
            params.inputProof.startsWith('0x');
   };
 
+  // Enhanced error handling with user-friendly messages
+  const getErrorMessage = (error: any): string => {
+    if (error.message?.includes("User rejected")) {
+      return "Transaction cancelled by user";
+    }
+    if (error.message?.includes("insufficient funds")) {
+      return "Insufficient funds for transaction";
+    }
+    if (error.message?.includes("Nonce already used")) {
+      return "This transaction was already processed";
+    }
+    if (error.message?.includes("Invalid signature")) {
+      return "Invalid signature provided";
+    }
+    return error.message || "Transaction failed";
+  };
+
   // Generate message hash for verify signature
   const getVerifyMessageHash = (productId: bigint, nonce: bigint) => {
     if (!contractAddress || !chainId) return null;
