@@ -81,6 +81,7 @@ contract ProofVault is SepoliaConfig {
         bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address signer = ECDSA.recover(ethSignedMessageHash, signature);
         require(signer == msg.sender, "Invalid signature");
+        require(signer != address(0), "Invalid signer");
 
         // Mark nonce as used
         usedNonces[msg.sender][nonce] = true;
