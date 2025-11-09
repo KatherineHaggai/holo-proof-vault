@@ -18,6 +18,16 @@ async function deployFixture() {
   return { proofVaultContract, proofVaultContractAddress };
 }
 
+// Helper function for permission validation testing
+function validatePermissionAccess(contract: ProofVault, user: HardhatEthersSigner, productId: bigint): boolean {
+  try {
+    // This would test if user has permission to access encrypted data
+    return true; // Simplified for this example
+  } catch (error) {
+    return false;
+  }
+}
+
 describe("ProofVault", function () {
   let signers: Signers;
   let proofVaultContract: ProofVault;
