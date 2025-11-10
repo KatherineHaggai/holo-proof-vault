@@ -32,6 +32,9 @@ contract ProofVault is SepoliaConfig {
     // Mapping to track used nonces for signature replay protection
     mapping(address => mapping(uint256 => bool)) public usedNonces;
 
+    // Gas optimization: track seller product count
+    mapping(address => uint256) private _sellerProductCount;
+
     // Events
     event ProductAdded(
         uint256 indexed productId,
