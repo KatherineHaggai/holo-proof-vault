@@ -11,7 +11,7 @@ export interface AddProductParams {
   imageUrl: string;
   certificateHash: `0x${string}`;
   inputProof: `0x${string}`;
-  nonce: number;  // Bug: should be bigint
+  nonce: bigint;  // Fixed: changed back to bigint
   signature: `0x${string}`;
 }
 
