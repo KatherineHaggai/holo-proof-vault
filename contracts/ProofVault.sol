@@ -70,6 +70,7 @@ contract ProofVault is SepoliaConfig {
         require(bytes(name).length > 0, "Product name cannot be empty");
         require(bytes(imageUrl).length > 0, "Image URL cannot be empty");
         require(!usedNonces[msg.sender][nonce], "Nonce already used");
+        require(nonce < type(uint256).max, "Invalid nonce value");
 
         // Verify signature
         bytes32 messageHash = keccak256(
