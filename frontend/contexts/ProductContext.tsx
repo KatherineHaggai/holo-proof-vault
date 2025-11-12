@@ -1,92 +1,107 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { toast } from "sonner";
 
-export interface Product {
-  id: string; // Local UI ID
-  onChainId?: number; // Blockchain product ID (0, 1, 2, etc.)
+interface Product {
+  id: number;
   name: string;
   price: string;
-  image: string;
-  verified: boolean;
-  seller?: string;
-  certificate?: string;
-  isOnChain?: boolean; // True if product exists on blockchain
+  imageUrl: string;
+  certificateHash: string;
+  seller: string;
+  timestamp: number;
+  isOnChain?: boolean;
+  onChainId?: number;
+  isVerified?: boolean;
 }
 
 interface ProductContextType {
   products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => void;
-  verifyProduct: (id: string) => void;
+  addProduct: (product: Omit<Product, "id" | "timestamp">) => void;
+  verifyProduct: (productId: number, txHash?: string) => void;
+  removeProduct: (productId: number) => void;
+  updateProduct: (productId: number, updates: Partial<Product>) => void;
   clearProducts: () => void;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-export const ProductProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize with empty array to avoid hydration mismatch
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isHydrated, setIsHydrated] = useState(false);
+export function useProducts() {
+  const context = useContext(ProductContext);
+  if (context === undefined) {
+    throw new Error("useProducts must be used within a ProductProvider");
+  }
+  return context;
+}
 
-  // Load from localStorage only after hydration
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('proofchain-products');
-        if (saved) {
-          const parsed = JSON.parse(saved) as Product[];
-          const migrated = parsed.map((p) => ({
-            ...p,
-            id: String(p.id),
-            isOnChain: p.isOnChain ?? (p.onChainId !== undefined),
-          }));
-          const validProducts = migrated.filter((p: Product) => 
-            p.name && p.price && p.image && p.image.startsWith('http')
-          );
-          setProducts(validProducts);
-        }
-      } catch (error) {
-        console.error('Failed to load products from localStorage:', error);
-        localStorage.removeItem('proofchain-products');
-      }
-      setIsHydrated(true);
+interface ProductProviderProps {
+  children: ReactNode;
+}
+
+export function ProductProvider({ children }: ProductProviderProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const addProduct = useCallback((product: Omit<Product, "id" | "timestamp">) => {
+    const newProduct: Product = {
+      ...product,
+      id: Date.now(),
+      timestamp: Math.floor(Date.now() / 1000),
+    };
+    setProducts(prev => [...prev, newProduct]);
+    toast.success("Product added successfully!");
+  }, []);
+
+  const verifyProduct = useCallback((productId: number, txHash?: string) => {
+    setProducts(prev => 
+      prev.map(product => 
+        product.id === productId 
+          ? { ...product, isVerified: true }
+          : product
+      )
+    );
+    if (txHash) {
+      toast.success(`Product verified! Transaction: ${txHash.slice(0, 10)}...`);
     }
   }, []);
 
-  // Save to localStorage when products change (only after hydration)
-  useEffect(() => {
-    if (isHydrated && typeof window !== 'undefined') {
-      localStorage.setItem('proofchain-products', JSON.stringify(products));
-    }
-  }, [products, isHydrated]);
+  const removeProduct = useCallback((productId: number) => {
+    setProducts(prev => prev.filter(product => product.id !== productId));
+    toast.success("Product removed");
+  }, []);
 
-  const addProduct = (product: Omit<Product, 'id'>) => {
-    const newProduct = {
-      ...product,
-      id: Date.now().toString(),
-    };
-    setProducts(prev => [newProduct, ...prev]);
-  };
-
-  const verifyProduct = (id: string) => {
-    setProducts(prev =>
-      prev.map(p => (p.id === id ? { ...p, verified: true } : p))
+  const updateProduct = useCallback((productId: number, updates: Partial<Product>) => {
+    setProducts(prev => 
+      prev.map(product => 
+        product.id === productId 
+          ? { ...product, ...updates }
+          : product
+      )
     );
-  };
+  }, []);
 
-  const clearProducts = () => {
+  const clearProducts = useCallback(() => {
     setProducts([]);
+    toast.success("All products cleared");
+  }, []);
+
+  const value: ProductContextType = {
+    products,
+    addProduct,
+    verifyProduct,
+    removeProduct,
+    updateProduct,
+    clearProducts,
+    isLoading,
+    setIsLoading,
   };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, verifyProduct, clearProducts }}>
+    <ProductContext.Provider value={value}>
       {children}
     </ProductContext.Provider>
   );
-};
-
-export const useProducts = () => {
-  const context = useContext(ProductContext);
-  if (!context) throw new Error('useProducts must be used within ProductProvider');
-  return context;
-};
+}
