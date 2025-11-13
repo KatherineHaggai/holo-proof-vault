@@ -28,6 +28,19 @@ function validatePermissionAccess(contract: ProofVault, user: HardhatEthersSigne
   }
 }
 
+// ABI compatibility validation helper
+function validateABICompatibility(abi: any): boolean {
+  try {
+    // Check if required functions exist in ABI
+    const requiredFunctions = ['addProduct', 'verifyProduct', 'getProductInfo', 'getTotalProducts'];
+    return requiredFunctions.every(func => 
+      abi.some((item: any) => item.name === func && item.type === 'function')
+    );
+  } catch (error) {
+    return false;
+  }
+}
+
 describe("ProofVault", function () {
   let signers: Signers;
   let proofVaultContract: ProofVault;
