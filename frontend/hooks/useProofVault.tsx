@@ -156,6 +156,8 @@ export function useProofVault() {
     getProductInfo,
     getUploadMessageHash,
     getVerifyMessageHash,
+    validateProductParams,
+    getErrorMessage,
     isPending,
     isConfirming,
     isConfirmed,
