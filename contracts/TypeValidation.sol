@@ -50,7 +50,6 @@ library TypeValidation {
     /// @return result Sum of the values
     function safeAdd(euint64 a, euint64 b) 
         external 
-        pure 
         returns (euint64 result) 
     {
         // Note: FHE operations don't have traditional overflow checks

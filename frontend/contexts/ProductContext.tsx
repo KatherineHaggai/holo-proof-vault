@@ -3,25 +3,24 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { toast } from "sonner";
 
-interface Product {
-  id: number;
+export interface Product {
+  id: string | number;
   name: string;
   price: string;
-  imageUrl: string;
-  certificateHash: string;
-  seller: string;
-  timestamp: number;
+  image: string;
+  certificate: string;
+  seller?: string;
+  verified: boolean;
   isOnChain?: boolean;
   onChainId?: number;
-  isVerified?: boolean;
 }
 
 interface ProductContextType {
   products: Product[];
-  addProduct: (product: Omit<Product, "id" | "timestamp">) => void;
-  verifyProduct: (productId: number, txHash?: string) => void;
-  removeProduct: (productId: number) => void;
-  updateProduct: (productId: number, updates: Partial<Product>) => void;
+  addProduct: (product: Omit<Product, "id">) => void;
+  verifyProduct: (productId: string | number) => void;
+  removeProduct: (productId: string | number) => void;
+  updateProduct: (productId: string | number, updates: Partial<Product>) => void;
   clearProducts: () => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -45,35 +44,32 @@ export function ProductProvider({ children }: ProductProviderProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const addProduct = useCallback((product: Omit<Product, "id" | "timestamp">) => {
+  const addProduct = useCallback((product: Omit<Product, "id">) => {
     const newProduct: Product = {
       ...product,
       id: Date.now(),
-      timestamp: Math.floor(Date.now() / 1000),
     };
     setProducts(prev => [...prev, newProduct]);
     toast.success("Product added successfully!");
   }, []);
 
-  const verifyProduct = useCallback((productId: number, txHash?: string) => {
+  const verifyProduct = useCallback((productId: string | number) => {
     setProducts(prev => 
       prev.map(product => 
         product.id === productId 
-          ? { ...product, isVerified: true }
+          ? { ...product, verified: true }
           : product
       )
     );
-    if (txHash) {
-      toast.success(`Product verified! Transaction: ${txHash.slice(0, 10)}...`);
-    }
+    toast.success("Product verified successfully!");
   }, []);
 
-  const removeProduct = useCallback((productId: number) => {
+  const removeProduct = useCallback((productId: string | number) => {
     setProducts(prev => prev.filter(product => product.id !== productId));
     toast.success("Product removed");
   }, []);
 
-  const updateProduct = useCallback((productId: number, updates: Partial<Product>) => {
+  const updateProduct = useCallback((productId: string | number, updates: Partial<Product>) => {
     setProducts(prev => 
       prev.map(product => 
         product.id === productId 

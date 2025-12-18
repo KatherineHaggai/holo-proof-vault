@@ -4,7 +4,7 @@ A blockchain-based product authentication system using Fully Homomorphic Encrypt
 
 ## 🎬 Demo
 
-**🔗 Live Demo**: [https://holo-proof-vault.vercel.app/](https://holo-proof-vault.vercel.app/)
+**🔗 Live Demo**: [https://holo-proof-vault.vercel.app/](https://holo-proof-vault-one.vercel.app/)
 
 **📹 Video Demo**: [Watch Demo Video](./demo.mp4)
 

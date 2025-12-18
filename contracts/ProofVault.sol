@@ -2,14 +2,14 @@
 pragma solidity ^0.8.24;
 
 import {FHE, euint32, euint64, ebool, externalEuint32, externalEuint64} from "@fhevm/solidity/lib/FHE.sol";
-import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
+import {LocalConfig} from "./LocalConfig.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 /// @title ProofVault - Encrypted Product Authentication System
 /// @notice Stores encrypted product authenticity certificates on-chain with privacy-preserving verification
 /// @dev Implements a complete encryption/decryption loop for product authentication using FHEVM
-contract ProofVault is SepoliaConfig {
+contract ProofVault is LocalConfig {
     struct Product {
         string name;
         euint64 priceWei; // Price in wei (encrypted)

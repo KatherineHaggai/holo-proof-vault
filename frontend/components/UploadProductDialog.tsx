@@ -10,7 +10,6 @@ import { useAccount, useSignMessage } from "wagmi";
 import { toast } from "sonner";
 import { useProofVault } from "@/hooks/useProofVault";
 import { useProducts } from "@/contexts/ProductContext";
-import { parseEther } from "viem";
 import { useFhevm } from "@/fhevm/useFhevm";
 import { usePublicClient } from "wagmi";
 
@@ -95,12 +94,14 @@ export const UploadProductDialog = () => {
       toast.info("🔐 Encrypting product data...");
 
       // Create encrypted input using FHEVM
-      const priceWei = parseEther(price);
+      // Use price in Gwei (1e9) instead of Wei (1e18) to avoid uint64 overflow
+      // uint64 max is ~18.4 ETH in Wei, but ~18.4 billion ETH in Gwei
+      const priceInGwei = BigInt(Math.floor(parseFloat(price) * 1e9));
       // Simple hash of certificate for demo
       const certHashValue = certificate.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       
       const encryptedInput = fhevmInstance.createEncryptedInput(contractAddress!, address!);
-      encryptedInput.add64(priceWei);
+      encryptedInput.add64(priceInGwei);
       encryptedInput.add32(certHashValue);
       const { handles, inputProof } = await encryptedInput.encrypt();
       
@@ -161,121 +162,130 @@ export const UploadProductDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2 btn-shine bg-gradient-to-r from-primary to-accent hover:opacity-90">
           <Upload className="h-4 w-4" />
           Upload Product
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] glass-card">
         <DialogHeader>
-          <DialogTitle>Upload New Product</DialogTitle>
-          <DialogDescription>
-            Add a new product with encrypted authenticity certificate
-          </DialogDescription>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 holographic-seal rounded-xl flex items-center justify-center">
+              <Upload className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl">Upload New Product</DialogTitle>
+              <DialogDescription>
+                Add a product with FHE-encrypted certificate
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Product Name</Label>
+            <Label htmlFor="name" className="text-sm font-medium">Product Name</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Premium Smart Watch"
+              className="bg-background/50"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="price">Price (ETH)</Label>
+            <Label htmlFor="price" className="text-sm font-medium">Price (ETH)</Label>
             <Input
               id="price"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="0.45 ETH"
+              placeholder="0.45"
+              className="bg-background/50"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="image">Image URL</Label>
+            <Label htmlFor="image" className="text-sm font-medium">Image URL (optional)</Label>
             <Input
               id="image"
               value={image}
               onChange={(e) => setImage(e.target.value)}
               placeholder="https://example.com/image.jpg"
+              className="bg-background/50"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="certificate">Authenticity Certificate</Label>
+            <Label htmlFor="certificate" className="text-sm font-medium">Authenticity Certificate</Label>
             <Input
               id="certificate"
               value={certificate}
               onChange={(e) => setCertificate(e.target.value)}
-              placeholder="Certificate hash or encrypted data"
+              placeholder="Enter certificate data to encrypt"
+              className="bg-background/50"
               required
             />
           </div>
           
           {fhevmStatus === "loading" && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Loader2 className="h-4 w-4 text-yellow-600 animate-spin" />
-                <span className="text-sm font-medium text-yellow-800">Initializing Encryption</span>
+                <Loader2 className="h-4 w-4 text-yellow-500 animate-spin" />
+                <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Initializing FHE</span>
               </div>
-              <p className="text-xs text-yellow-600">
-                Please wait while FHEVM encryption system initializes...
+              <p className="text-xs text-yellow-600/80 dark:text-yellow-400/80">
+                Please wait while the encryption system initializes...
               </p>
             </div>
           )}
 
           {fhevmStatus === "error" && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium text-red-800">Encryption Error</span>
+                <span className="text-sm font-medium text-red-600 dark:text-red-400">Encryption Error</span>
               </div>
-              <p className="text-xs text-red-600">
-                {fhevmError?.message || "Failed to initialize FHEVM. Please refresh the page."}
+              <p className="text-xs text-red-600/80 dark:text-red-400/80">
+                {fhevmError?.message || "Failed to initialize. Please refresh."}
               </p>
             </div>
           )}
 
           {fhevmStatus === "ready" && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Shield className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Signature Required</span>
+                <Shield className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Ready to Encrypt</span>
               </div>
-              <p className="text-xs text-blue-600">
-                You will need to sign with your wallet to authorize this product upload.
+              <p className="text-xs text-muted-foreground">
+                Your certificate will be encrypted with FHE before storing on-chain.
               </p>
             </div>
           )}
           
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full gap-2 btn-shine bg-gradient-to-r from-primary to-accent hover:opacity-90" 
             disabled={isLoading || !isConnected || fhevmStatus !== "ready"}
           >
             {isLoading ? (
-              <div className="flex items-center gap-2">
+              <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Uploading...
-              </div>
+                Encrypting & Uploading...
+              </>
             ) : fhevmStatus === "loading" ? (
-              <div className="flex items-center gap-2">
+              <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Initializing FHEVM...
-              </div>
+                Initializing...
+              </>
             ) : fhevmStatus === "error" ? (
-              <div className="flex items-center gap-2">
-                FHEVM Error - Refresh Page
-              </div>
+              "Error - Refresh Page"
             ) : (
-              <div className="flex items-center gap-2">
+              <>
                 <Upload className="h-4 w-4" />
-                Upload Product
-              </div>
+                Upload & Encrypt
+              </>
             )}
           </Button>
         </form>
